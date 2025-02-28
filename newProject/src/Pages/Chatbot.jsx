@@ -1,30 +1,37 @@
+
+
+
 import React, { useState, useEffect, useRef } from "react";
 import axios from "axios";
 import { Box, TextField, IconButton, Typography, Paper } from "@mui/material";
 import SendIcon from "@mui/icons-material/Send";
 import "./Chatbot.css";
- 
-const API_URL = "https://your-backend-endpoint.com/chat"; // Replace with actual API URL
- 
+
+const API_URL = "https://5be8-27-107-27-130.ngrok-free.app/api/query"; // Your API endpoint
+
 const Chatbot = () => {
   const [messages, setMessages] = useState([]);
   const [input, setInput] = useState("");
   const messagesEndRef = useRef(null);
- 
+
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
- 
+
+  
   const handleSend = async () => {
     if (input.trim() === "") return;
- 
-    const userMessage = { text: input, sender: "user" };
+  
+    const userMessage = { text: input };
     setMessages([...messages, userMessage]);
     setInput("");
- 
+  
     try {
-      const response = await axios.post(API_URL, { message: input });
-      const botMessage = { text: response.data.reply, sender: "bot" }; // Adjust based on API response
+      const response = await axios.get(API_URL, { 
+        params: { query: input }  // ✅ Correct way to send query params in GET request
+      });
+      console.log(response.data)
+      const botMessage = { text: response.data.response, sender: "bot" }; 
       setMessages((prev) => [...prev, botMessage]);
     } catch (error) {
       console.error("Error fetching bot response:", error);
@@ -34,7 +41,8 @@ const Chatbot = () => {
       ]);
     }
   };
- 
+  
+
   return (
     <Box
       className="chat-container"
@@ -75,7 +83,7 @@ const Chatbot = () => {
         >
           Chatbot
         </Typography>
- 
+
         {/* Messages */}
         <Box
           sx={{
@@ -112,7 +120,7 @@ const Chatbot = () => {
           ))}
           <div ref={messagesEndRef} />
         </Box>
- 
+
         {/* Input Field */}
         <Box
           sx={{
@@ -145,5 +153,5 @@ const Chatbot = () => {
     </Box>
   );
 };
- 
+
 export default Chatbot;
